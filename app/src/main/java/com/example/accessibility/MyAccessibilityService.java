@@ -12,11 +12,18 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class MyAccessibilityService extends AccessibilityService {
     private final AccessibilityServiceInfo info = new AccessibilityServiceInfo();
@@ -48,35 +55,96 @@ public class MyAccessibilityService extends AccessibilityService {
         Log.d(TAG, "onAccessibilityEvent");
         myAccessibilityService = this;
         final String sourcePackageName = (String) accessibilityEvent.getPackageName();
-        currntApplicationPackage = sourcePackageName;
-        Log.d(TAG, "sourcePackageName:" + sourcePackageName);
-        Log.d(TAG, "parcelable:" + accessibilityEvent.getText().toString());
+//        currntApplicationPackage = sourcePackageName;
+//        Log.d(TAG, "sourcePackageName:" + sourcePackageName);
+//        Log.d(TAG, "parcelable:" + accessibilityEvent.getText().toString());
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         AccessibilityNodeInfo source = accessibilityEvent.getSource();
-        if (source == null) {
+    /*    if (source == null) {
             Log.d("onAccessibilityEvent", "source was null for: " + source);
         } else {
-
             Log.d("test", "clickPerform:  "+ source.getText());
             source.refresh();
             for (int i = 0; i < source.getChildCount(); i++) {
                 AccessibilityNodeInfo childNode = source.getChild(i);
-                Log.e("test", "clickPerform:  "+ childNode.getText());
+//                Log.e("test", "clickPerform:  "+ childNode.getText());
             }
-        }
+        }*/
 
 
         if (sourcePackageName.equals("com.amazon.rabbit")) {
-            WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+           /* WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                     PixelFormat.TRANSLUCENT);
-            params.gravity = Gravity.BOTTOM | Gravity.CENTER;
+            params.gravity = Gravity.BOTTOM | Gravity.CENTER;*/
             final AccessibilityNodeInfo node = accessibilityEvent.getSource();
+            if (node != null)
+            for (int i = 0; i < node.getChildCount(); i++) {
+                AccessibilityNodeInfo childNode = source.getChild(i);
+               if(childNode.getClassName().equals(FrameLayout.class.getName())) {
+                    for (int j = 0; j < childNode.getChildCount(); j++) {
+                        AccessibilityNodeInfo subChild = childNode.getChild(j);
+                        if (subChild.getClassName().equals(FrameLayout.class.getName())) {
+                            for (int j1 = 0; j1 < subChild.getChildCount(); j1++) {
+                                AccessibilityNodeInfo subChild1 = subChild.getChild(j1);
+                              for (int j2 = 0; j2 < subChild1.getChildCount(); j2++) {
+                                   AccessibilityNodeInfo subChild2 = subChild1.getChild(j2);
+                                  for (int j3 = 0; j3 < subChild2.getChildCount(); j3++) {
+                                      AccessibilityNodeInfo subChild3 = subChild2.getChild(j3);
+                                      if (subChild3.getClassName().equals("android.support.v7.widget.RecyclerView")) {
+                                      for (int j4 = 0; j4 < subChild3.getChildCount(); j4++) {
+                                              AccessibilityNodeInfo subChild4 = subChild3.getChild(j4);
+                                          if (subChild4.getClassName().equals(LinearLayout.class.getName())) {
+                                          for (int j5 = 0; j5 < subChild4.getChildCount(); j5++) {
+                                                  AccessibilityNodeInfo subChild5 = subChild4.getChild(j5);
+                                              if (subChild5.getClassName().equals(RelativeLayout.class.getName())) {
+                                                  for (int j6 = 0; j6 < subChild5.getChildCount(); j6++) {
+                                                      AccessibilityNodeInfo subChild6 = subChild5.getChild(j6);
+                                                      if(subChild6.getClassName().equals(TextView.class.getName())) {
+                                                          subChild4.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                                                      }
+                                                  }
+                                                }
+                                              }
+                                          }
+                                          if (subChild4.getClassName().equals(FrameLayout.class.getName())) {
+                                              for (int j5 = 0; j5 < subChild4.getChildCount(); j5++) {
+                                                  AccessibilityNodeInfo subChild5 = subChild4.getChild(j5);
+                                                  if (subChild5.getClassName().equals(FrameLayout.class.getName())) {
+                                                      for (int j6 = 0; j6 < subChild5.getChildCount(); j6++) {
+                                                          AccessibilityNodeInfo subChild6 = subChild5.getChild(j6);
 
-            myAccessibilityService .dispatchGesture(createClick(params.x,params.y), gestureDescription, null);
+                                                      }
+                                                  }
+
+                                              }
+
+                                          }
+
+//                                              Log.i("test", "clickPerform:  "+subChild4.getChildCount()+"  "+ subChild4);
+                                          }
+
+                                      }
+//                                      Log.i("test", "clickPerform:  "+subChild3.getChildCount()+"  "+ subChild3.getClassName());
+                                  }
+                              }
+
+
+//                                    Log.i("test", "clickPerform:  "+ subChild2);
+
+                            }
+                        }
+                    }
+
+                }
+
+            }
+            Log.i("TAG","The values"+node);
+
+//            myAccessibilityService .dispatchGesture(createClick(params.x,params.y), gestureDescription, null);
             final Handler handler = new Handler();
              Runnable runnable = new Runnable() {
                 @Override
@@ -89,10 +157,10 @@ public class MyAccessibilityService extends AccessibilityService {
                             node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                         }
                     }
-                    handler.postDelayed(this, 3000); // reschedule the handler
+                    handler.postDelayed(this, 10000); // reschedule the handler
                 }
             };
-           handler.postDelayed(runnable, 3000); // 10 mins int.
+           handler.postDelayed(runnable, 20000); // 10 mins int.
         }
 
         /*  if (accessibilityEvent.getEventType() == AccessibilityEvent.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION) {
